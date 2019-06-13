@@ -1,40 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
-
-const UserWeapon = props => (
-  <h1>
-    {props.userWeapon} | {props.AIChoice}
-  </h1>
-);
-
-const Outcome = props => <h3>{props.outcome}</h3>;
-
-const Score = props => (
-  <h5>
-    {props.score.wins} | {props.score.loses}
-  </h5>
-);
+import WeaponShowdown from "./components/WeaponShowdown";
+import Score from "./components/Score";
 
 const Game = () => {
   const weaponsAvailable = ["rock", "paper", "scissors"];
   const [weapon, selectingWeapon] = useState({
-    choice: "Choose your weapon",
+    choice: "| Choose your weapon",
     AIChoice: ""
   });
   const [outcome, setOutcome] = useState({
     outcome: "You: "
   });
-  const score = {
-    wins: 0,
-    loses: 0
-  };
+  const [wins, incrementWins] = useState(0);
+  const [losses, incrementLosses] = useState(0);
 
-  function testGame(weapon) {
-    debugger;
-    if (weapon.choice === weapon.AIChoice) {
-      setOutcome({ ...outcome, outcome: "You Tied!" });
+  useEffect(() => {
+    function testGame() {
+      debugger;
+      if (weapon.choice[0] === weapon.AIChoice[0]) {
+        setOutcome({ ...outcome, outcome: "You Tied!" });
+      } else {
+        debugger;
+        switch (weapon.choice[0]) {
+          case "rock":
+            return weapon.AIChoice[0] === "scissors"
+              ? setOutcome({ ...outcome, outcome: "You Win!" })
+              : setOutcome({ ...outcome, outcome: "You Lost" });
+          case "paper":
+            return weapon.AIChoice[0] === "rock"
+              ? setOutcome({ ...outcome, outcome: "You Win!" })
+              : setOutcome({ ...outcome, outcome: "You Lost" });
+          case "scissors":
+            return weapon.AIChoice[0] === "paper"
+              ? setOutcome({ ...outcome, outcome: "You Win!" })
+              : setOutcome({ ...outcome, outcome: "You Lost" });
+          default:
+            return undefined;
+        }
+      }
     }
-  }
+    testGame();
+  }, [outcome, weapon.AIChoice, weapon.choice]);
 
   function handleClick(e) {
     e.preventDefault();
@@ -47,7 +54,11 @@ const Game = () => {
 
   return (
     <div>
-      <UserWeapon userWeapon={weapon.choice} AIChoice={weapon.AIChoice} />
+      <WeaponShowdown
+        userWeapon={weapon.choice}
+        AIChoice={weapon.AIChoice}
+        outcome={outcome.outcome}
+      />
       {weaponsAvailable.map(item => {
         return (
           <button onClick={handleClick} key={item} value={item}>
@@ -55,8 +66,7 @@ const Game = () => {
           </button>
         );
       })}
-      <Outcome outcome={outcome.outcome} />
-      <Score score={score} />
+      <Score wins={wins} losses={losses} />
     </div>
   );
 };
